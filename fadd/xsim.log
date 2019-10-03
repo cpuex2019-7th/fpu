@@ -1,0 +1,27 @@
+#-----------------------------------------------------------
+# xsim v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Thu Oct  3 14:23:29 2019
+# Process ID: 1001
+# Current directory: /home/nhsmt1123/Documents/cpu/fpu/fadd
+# Command line: xsim -mode tcl -source {xsim.dir/test_fadd.sim/xsim_script.tcl}
+# Log file: /home/nhsmt1123/Documents/cpu/fpu/fadd/xsim.log
+# Journal file: /home/nhsmt1123/Documents/cpu/fpu/fadd/xsim.jou
+#-----------------------------------------------------------
+source xsim.dir/test_fadd.sim/xsim_script.tcl
+# xsim {test_fadd.sim} -autoloadwcfg -runall
+Vivado Simulator 2018.3
+Time resolution is 100 ps
+run -all
+start of checking module fadd
+difference message format
+x1 = [input 1(bit)], [exponent 1(decimal)]
+x2 = [input 2(bit)], [exponent 2(decimal)]
+ref. : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)
+fadd : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)
+end of checking module fadd
+$finish called at time : 52898 us : File "/home/nhsmt1123/Documents/cpu/fpu/fadd/test_fadd.sv" Line 159
+run: Time (s): cpu = 00:00:00.07 ; elapsed = 00:01:29 . Memory (MB): peak = 1414.996 ; gain = 0.000 ; free physical = 1358 ; free virtual = 9814
+exit
+INFO: [Common 17-206] Exiting xsim at Thu Oct  3 14:25:05 2019...
