@@ -1,0 +1,47 @@
+#-----------------------------------------------------------
+# xsim v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Fri Oct  4 14:00:54 2019
+# Process ID: 16293
+# Current directory: /home/nhsmt1123/Documents/cpu/fpu/fmul
+# Command line: xsim -mode tcl -source {xsim.dir/test_fmul.sim/xsim_script.tcl}
+# Log file: /home/nhsmt1123/Documents/cpu/fpu/fmul/xsim.log
+# Journal file: /home/nhsmt1123/Documents/cpu/fpu/fmul/xsim.jou
+#-----------------------------------------------------------
+source xsim.dir/test_fmul.sim/xsim_script.tcl
+# xsim {test_fmul.sim} -autoloadwcfg -runall
+Vivado Simulator 2018.3
+Time resolution is 100 ps
+run -all
+start of checking module fmul
+difference message format
+x1 = [input 1(bit)], [exponent 1(decimal)], [x1(float)]
+x2 = [input 2(bit)], [exponent 2(decimal)], [x2(float)]
+ref. : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)
+fmul : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)
+x1 = 0 00000000 00000000000000000000000,   0, 0.000000e+00
+x2 = 0 11111111 00000000000000000000000, 255, inf
+-nan 1,255,10000000000000000000000 0
+nan 0,255,10000000000000000000000 0
+
+x1 = 1 00000000 00000000000000000000000,   0, -0.000000e+00
+x2 = 0 11111111 00000000000000000000000, 255, inf
+-nan 1,255,10000000000000000000000 0
+nan 0,255,10000000000000000000000 0
+
+x1 = 0 11111111 00000000000000000000000, 255, inf
+x2 = 0 00000000 00000000000000000000000,   0, 0.000000e+00
+-nan 1,255,10000000000000000000000 0
+nan 0,255,10000000000000000000000 0
+
+x1 = 0 11111111 00000000000000000000000, 255, inf
+x2 = 1 00000000 00000000000000000000000,   0, -0.000000e+00
+-nan 1,255,10000000000000000000000 0
+nan 0,255,10000000000000000000000 0
+
+end of checking module fmul
+$finish called at time : 52898 us : File "/home/nhsmt1123/Documents/cpu/fpu/fmul/test_fmul.sv" Line 160
+run: Time (s): cpu = 00:00:00.12 ; elapsed = 00:02:44 . Memory (MB): peak = 1415.000 ; gain = 0.000 ; free physical = 1927 ; free virtual = 10403
+exit
+INFO: [Common 17-206] Exiting xsim at Fri Oct  4 14:03:43 2019...
