@@ -2,6 +2,5 @@
 2018.3
 Dec  6 2018
 23:39:36
-/home/nhsmt1123/Documents/cpu/fpu/fadd/fadd.sv,1559926852,systemVerilog,,,,fadd,,,,,,,,
-/home/nhsmt1123/Documents/cpu/fpu/fmul/fmul.sv,1570166726,systemVerilog,,,,fmul,,,,,,,,
-/home/nhsmt1123/Documents/cpu/fpu/fmul/test_fmul.sv,1570121098,systemVerilog,,/home/nhsmt1123/Documents/cpu/fpu/fmul/fmul.sv,,test_fmul,,,,,,,,
+/home/nhsmt1123/Documents/cpu/fpu/fmul2/fmul.sv,1570166992,systemVerilog,,,,fmul,,,,,,,,
+/home/nhsmt1123/Documents/cpu/fpu/fmul2/test_fmul.sv,1570121098,systemVerilog,,/home/nhsmt1123/Documents/cpu/fpu/fmul2/fmul.sv,,test_fmul,,,,,,,,
