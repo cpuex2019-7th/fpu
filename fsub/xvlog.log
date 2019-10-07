@@ -1,5 +1,0 @@
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/nhsmt1123/Documents/cpu/fpu/fsub/test_fsub.sv" into library work
-INFO: [VRFC 10-311] analyzing module test_fsub
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/nhsmt1123/Documents/cpu/fpu/fsub/fsub.sv" into library work
-INFO: [VRFC 10-311] analyzing module fadd
-INFO: [VRFC 10-311] analyzing module fsub

@@ -4,7 +4,7 @@ module feq
    (  input wire [31:0]  x1,
       input wire [31:0]  x2,
       output wire        y,
-      output wire        valid);
+      output wire        exception);
 
    // 定義
    wire [7:0] e1 = x1[30:23];
@@ -20,8 +20,8 @@ module feq
               (e1 == 8'd255 && nzm1) ? 1'b0 : // 片方がnanなら結果は0
               (e1 == 8'b0 && m1 == 8'b0 && e2 == 8'b0 && m2 == 8'b0) ? 1'b1 : // 両方0なら符号は無視
               yy;
-   assign valid = (e2 == 8'd255 && nzm2) ? 1'b1 :
-                  (e1 == 8'd255 && nzm1) ? 1'b1 : // 片方がnanならvalid bitを立てる
+   assign exception = (e2 == 8'd255 && nzm2) ? 1'b1 :
+                  (e1 == 8'd255 && nzm1) ? 1'b1 : // 片方がnanならexception bitを立てる
                   1'b0;
 
 endmodule                                                                         

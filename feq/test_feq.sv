@@ -3,7 +3,7 @@
 
 module test_feq();
    wire [31:0] x1,x2;
-   wire        y,valid;
+   wire        y,exception;
    logic [31:0] x1i,x2i;
    shortreal    fx1,fx2;
    bit        fy;
@@ -13,13 +13,13 @@ module test_feq();
    int          s1,s2;
    logic [23:0] dy;
    bit [22:0] tm;
-   bit 	      fvalid;
-   bit 	      checkvalid;
+   bit 	      fexception;
+   bit 	      checkexception;
 
    assign x1 = x1i;
    assign x2 = x2i;
    
-   feq u1(x1,x2,y,valid);
+   feq u1(x1,x2,y,exception);
 
    initial begin
       // $dumpfile("test_feq.vcd");
@@ -29,8 +29,8 @@ module test_feq();
       $display("difference message format");
       $display("x1 = [input 1(bit)], [exponent 1(decimal)], [x1(float)]");
       $display("x2 = [input 2(bit)], [exponent 2(decimal)], [x2(float)]");
-      $display("ref. : result(bit) valid(bit)");
-      $display("feq : result(bit) valid(bit)");
+      $display("ref. : result(bit) exception(bit)");
+      $display("feq : result(bit) exception(bit)");
 
       for (i=0; i<256; i++) begin
          for (j=0; j<256; j++) begin
@@ -81,22 +81,22 @@ module test_feq();
                         fx2 = $bitstoshortreal(x2i);
                         fy = fx1 == fx2;
 
-			checkvalid = (i == 255 && m1 !== 0) || (j == 255 && m2 !== 0);
-			if ( checkvalid ) begin
-			   fvalid = 1;
+			checkexception = (i == 255 && m1 !== 0) || (j == 255 && m2 !== 0);
+			if ( checkexception ) begin
+			   fexception = 1;
 			end else begin
-			   fvalid = 0;
+			   fexception = 0;
 			end
                         
                         #1;
 
-                        if (y !== fy || valid !== fvalid) begin
+                        if (y !== fy || exception !== fexception) begin
                            $display("x1 = %b %b %b, %3d, %e",
 				    x1[31], x1[30:23], x1[22:0], x1[30:23], $bitstoshortreal(x1));
                            $display("x2 = %b %b %b, %3d, %e",
 				    x2[31], x2[30:23], x2[22:0], x2[30:23], $bitstoshortreal(x2));
-                           $display("%b %b", fy, fvalid);
-                           $display("%b %b\n", y, valid);
+                           $display("%b %b", fy, fexception);
+                           $display("%b %b\n", y, exception);
                         end
                      end
                   end
@@ -127,22 +127,22 @@ module test_feq();
                      fx2 = $bitstoshortreal(x2i);
                      fy = fx1 == fx2;
                      
-            checkvalid = i == 255 && m1 !== 0;		     
-		     if (checkvalid) begin
-			fvalid = 1;
+            checkexception = i == 255 && m1 !== 0;		     
+		     if (checkexception) begin
+			fexception = 1;
 		     end else begin
-			fvalid = 0;
+			fexception = 0;
 		     end
 
                      #1;
 
-                     if (y !== fy || valid !== fvalid) begin
+                     if (y !== fy || exception !== fexception) begin
                         $display("x1 = %b %b %b, %3d, %e",
 				 x1[31], x1[30:23], x1[22:0], x1[30:23], $bitstoshortreal(x1));
                         $display("x2 = %b %b %b, %3d, %e",
 				 x2[31], x2[30:23], x2[22:0], x2[30:23], $bitstoshortreal(x2));
-                        $display("%b %b",fy, fvalid);
-                        $display("%b %b\n", y, valid);
+                        $display("%b %b",fy, fexception);
+                        $display("%b %b\n", y, exception);
                      end
                   end
                end

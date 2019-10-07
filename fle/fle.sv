@@ -4,7 +4,7 @@ module fle
    (  input wire [31:0]  x1,
       input wire [31:0]  x2,
       output wire        y,
-      output wire        valid);
+      output wire        exception);
 
    // 定義
    wire s1 = x1[31:31];
@@ -24,8 +24,8 @@ module fle
               (e1 == 8'b0 && m1 == 8'b0 && e2 == 8'b0 && m2 == 8'b0) ? 1'b1 : // 両方0なら符号は無視
               ((s1 == 1'b1 || s2 == 1'b1) && x1 != x2) ? ~yy : // どちらかが負で等しくなければ不等号逆転
               yy;
-   assign valid = (e2 == 8'd255 && nzm2) ? 1'b1 :
-                  (e1 == 8'd255 && nzm1) ? 1'b1 : // 片方がnanならvalid bitを立てる
+   assign exception = (e2 == 8'd255 && nzm2) ? 1'b1 :
+                  (e1 == 8'd255 && nzm1) ? 1'b1 : // 片方がnanならexception bitを立てる
                   1'b0;
 
 endmodule                                                                         
