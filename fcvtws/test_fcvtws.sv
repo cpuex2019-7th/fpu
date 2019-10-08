@@ -66,7 +66,7 @@ module test_fcvtws();
                         fy = fx;
 
 
-			if ( fx >= max || fx <= min || i == 255 ) begin
+			if ( fx >= max || fx < min || i == 255 ) begin
 			   fexception = 1;
 			end else begin
 			   fexception = 0;
@@ -107,7 +107,7 @@ module test_fcvtws();
                      fx = $bitstoshortreal(xi);
                      fy = fx;
                      
-		     if ( fx >= max || fx <= min || i == 255 ) begin
+		     if ( fx >= max || fx < min || i == 255 ) begin
 			fexception = 1;
 		     end else begin
 			fexception = 0;

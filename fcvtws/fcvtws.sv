@@ -19,7 +19,8 @@ module fcvtws
 
    assign y = my;
    // オーバーフロー or nan のときexception flagを立てる
-   assign exception = (e[7:7] && se > 8'd30) ? 1'b1 : 1'b0;
+   // intの負の最大値のときはflagを立てないように気をつける
+   assign exception = (e[7:7] && se > 8'd30 && ~(s && e == 8'd158 && ~|x[22:0])) ? 1'b1 : 1'b0;
 
 endmodule                                                                         
 `default_nettype wire
