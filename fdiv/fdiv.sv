@@ -4,8 +4,6 @@ module fdiv
    (  input wire [31:0]  x1,
       input wire [31:0]  x2,
       output wire [31:0] y,
-      output wire [66:0] mm,
-      output wire [4:0] aa,
       output wire        ovf);
    // 定義
    wire s1 = x1[31:31];
@@ -290,8 +288,6 @@ module fdiv
               (e2 == 8'd255) ? {sy,8'b0,23'b0} : // x/infなら0
               (e1 < 8'd255 && e2 < 8'd255 && ey == 8'd255) ? {sy,8'd255,23'b0} : {sy,ey,my}; // overflowしたら符号を合わせて無限にする
    assign ovf = (e1 < 8'd255 && ((e2 < 8'd255 && ey == 8'd255) || (e2 == 8'd0 && ~nzm2))) ? 1'b1 : 1'b0;
-   assign mm = mye;
-   assign aa = s2a;
 
 endmodule                                                                         
 `default_nettype wire

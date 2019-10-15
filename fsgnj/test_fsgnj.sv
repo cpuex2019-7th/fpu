@@ -1,9 +1,9 @@
 `timescale 1ns / 100ps
 `default_nettype none
 
-module test_fdiv();
+module test_fsgnj();
    wire [31:0] x1,x2,y;
-   wire        ovf;
+   wire        exception;
    logic [31:0] x1i,x2i;
    shortreal    fx1,fx2,fy;
    int          i,j,k,it,jt;
@@ -13,24 +13,24 @@ module test_fdiv();
    int          s1,s2;
    logic [23:0] dy;
    bit [22:0] tm;
-   bit 	      fovf;
-   bit 	      checkovf;
+   bit 	      fexception;
+   bit 	      checkexception;
 
    assign x1 = x1i;
    assign x2 = x2i;
    
-   fdiv u1(x1,x2,y,ovf);
+   fsgnj u1(x1,x2,y,exception);
 
    initial begin
-      // $dumpfile("test_fdiv.vcd");
+      // $dumpfile("test_fsgnj.vcd");
       // $dumpvars(0);
 
-      $display("start of checking module fdiv");
+      $display("start of checking module fsgnj");
       $display("difference message format");
       $display("x1 = [input 1(bit)], [exponent 1(decimal)], [x1(float)]");
       $display("x2 = [input 2(bit)], [exponent 2(decimal)], [x2(float)]");
       $display("ref. : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
-      $display("fdiv : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
+      $display("fsgnj : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
 
       for (i=0; i<256; i++) begin
          for (j=0; j<256; j++) begin
@@ -79,28 +79,30 @@ module test_fdiv();
 
                         fx1 = $bitstoshortreal(x1i);
                         fx2 = $bitstoshortreal(x2i);
-                        fy = fx1 / fx2;
+                        if ((fx2 < 0 && fx1 > 0) || (fx2 > 0 && fx1 < 0)) begin
+                           fy = -fx1;
+                        end else begin
+                           fy = fx1;
+                        end
                         fybit = $shortrealtobits(fy);
-
-
-			checkovf = i < 255 && j < 255;
-			if ( checkovf && fybit[30:23] == 255 ) begin
-			   fovf = 1;
+                     
+         if ((i == 255 && |m1) || (j == 255 && |m2)) begin
+			   fexception = 1;
 			end else begin
-			   fovf = 0;
+			   fexception = 0;
 			end
                         
                         #1;
 
-                        if (y !== fybit || ovf !== fovf) begin
+                        if (y !== fybit || exception !== fexception) begin
                            $display("x1 = %b %b %b, %3d, %e",
 				    x1[31], x1[30:23], x1[22:0], x1[30:23], $bitstoshortreal(x1));
                            $display("x2 = %b %b %b, %3d, %e",
 				    x2[31], x2[30:23], x2[22:0], x2[30:23], $bitstoshortreal(x2));
                            $display("%e %b,%3d,%b %b", fy,
-				    fybit[31], fybit[30:23], fybit[22:0], fovf);
+				    fybit[31], fybit[30:23], fybit[22:0], fexception);
                            $display("%e %b,%3d,%b %b\n", $bitstoshortreal(y),
-				    y[31], y[30:23], y[22:0], ovf);
+				    y[31], y[30:23], y[22:0], exception);
                         end
                      end
                   end
@@ -129,34 +131,37 @@ module test_fdiv();
 
                      fx1 = $bitstoshortreal(x1i);
                      fx2 = $bitstoshortreal(x2i);
-                     fy = fx1 / fx2;
+                     if ((fx2 < 0 && fx1 > 0) || (fx2 > 0 && fx1 < 0)) begin
+                        fy = -fx1;
+                     end else begin
+                        fy = fx1;
+                     end
                      fybit = $shortrealtobits(fy);
                      
-		     checkovf = i < 255;
-		     if (checkovf && fybit[30:23] == 255) begin
-			fovf = 1;
+		     if ((i == 255 && |m1) || (j == 255 && |m2)) begin
+			fexception = 1;
 		     end else begin
-			fovf = 0;
+			fexception = 0;
 		     end
 
                      #1;
 
-                     if (y !== fybit || ovf !== fovf) begin
+                     if (y !== fybit || exception !== fexception) begin
                         $display("x1 = %b %b %b, %3d, %e",
 				 x1[31], x1[30:23], x1[22:0], x1[30:23], $bitstoshortreal(x1));
                         $display("x2 = %b %b %b, %3d, %e",
 				 x2[31], x2[30:23], x2[22:0], x2[30:23], $bitstoshortreal(x2));
                         $display("%e %b,%3d,%b %b, %d", fy,
-				 fybit[31], fybit[30:23], fybit[22:0], fovf, fybit);
+				 fybit[31], fybit[30:23], fybit[22:0], fexception, fybit);
                         $display("%e %b,%3d,%b %b\n", $bitstoshortreal(y),
-				 y[31], y[30:23], y[22:0], ovf);
+				 y[31], y[30:23], y[22:0], exception);
                      end
                   end
                end
             end
          end
       end
-      $display("end of checking module fdiv");
+      $display("end of checking module fsgnj");
       $finish;
    end
 endmodule
