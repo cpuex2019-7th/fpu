@@ -3,7 +3,7 @@
 
 module test_fdiv();
    wire [31:0] x1,x2,y;
-   wire [71:0] mm;
+   wire [66:0] mm;
    wire        ovf;
    logic [31:0] x1i,x2i;
    shortreal    fx1,fx2,fy;
@@ -16,11 +16,12 @@ module test_fdiv();
    bit [22:0] tm;
    bit 	      fovf;
    bit 	      checkovf;
+   wire [4:0] s2a;
 
    assign x1 = x1i;
    assign x2 = x2i;
    
-   fdiv u1(x1,x2,y,mm,ovf);
+   fdiv u1(x1,x2,y,mm,s2a,ovf);
 
    initial begin
       // $dumpfile("test_fdiv.vcd");
@@ -100,8 +101,8 @@ module test_fdiv();
 				    x2[31], x2[30:23], x2[22:0], x2[30:23], $bitstoshortreal(x2));
                            $display("%e %b,%3d,%b %b", fy,
 				    fybit[31], fybit[30:23], fybit[22:0], fovf);
-                           $display("%e %b,%3d,%b %b %b\n", $bitstoshortreal(y),
-				    y[31], y[30:23], y[22:0], ovf, mm);
+                           $display("%e %b,%3d,%b %b %b %d\n", $bitstoshortreal(y),
+				    y[31], y[30:23], y[22:0], ovf, mm, s2a);
                         end
                      end
                   end
@@ -149,8 +150,8 @@ module test_fdiv();
 				 x2[31], x2[30:23], x2[22:0], x2[30:23], $bitstoshortreal(x2));
                         $display("%e %b,%3d,%b %b, %d", fy,
 				 fybit[31], fybit[30:23], fybit[22:0], fovf, fybit);
-                        $display("%e %b,%3d,%b %b %b\n", $bitstoshortreal(y),
-				 y[31], y[30:23], y[22:0], ovf, mm);
+                        $display("%e %b,%3d,%b %b %b %d\n", $bitstoshortreal(y),
+				 y[31], y[30:23], y[22:0], ovf, mm, s2a);
                      end
                   end
                end
