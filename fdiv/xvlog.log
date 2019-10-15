@@ -1,4 +1,0 @@
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/nhsmt1123/Documents/cpu/fpu/fdiv/test_fdiv.sv" into library work
-INFO: [VRFC 10-311] analyzing module test_fdiv
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/nhsmt1123/Documents/cpu/fpu/fdiv/fdiv.sv" into library work
-INFO: [VRFC 10-311] analyzing module fdiv
