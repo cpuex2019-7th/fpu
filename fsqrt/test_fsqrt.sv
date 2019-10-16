@@ -75,11 +75,11 @@ module test_fsqrt();
                         x1i = {s1[0],i[7:0],m1};
 
                         fx1 = $bitstoshortreal(x1i);
-                        fy = 1/$sqrt(fx1);
+                        fy = $sqrt(fx1);
                         fybit = $shortrealtobits(fy);
 
 
-			if ( s1 == 1 ||i == 255 ) begin
+			if ( s1 == 1 || (i == 255 && m1 !== 0) ) begin
 			   fexception = 1;
 			end else begin
 			   fexception = 0;
@@ -87,7 +87,7 @@ module test_fsqrt();
                         
                         #1;
 
-                        if (y[31:1] !== fybit[31:1]) begin
+                        if ( ~(y - fybit == 1 || fybit - y == 1 || y == fybit) || exception !== fexception ) begin
                            $display("x  = %b %b %b, %3d, %e",
 				    x[31], x[30:23], x[22:0], x[30:23], $bitstoshortreal(x));
                            $display("%e %b,%3d,%b %b", fy,
@@ -121,10 +121,10 @@ module test_fsqrt();
                      x2i = {s2[0],i[7:0],tm};
 
                      fx1 = $bitstoshortreal(x1i);
-                     fy = 1/$sqrt(fx1);
+                     fy = $sqrt(fx1);
                      fybit = $shortrealtobits(fy);
                      
-		     if ( s1 == 1 ||i == 255 ) begin
+		     if ( s1 == 1 || (i == 255 && m1 !== 0) ) begin
 			fexception = 1;
 		     end else begin
 			fexception = 0;
@@ -132,7 +132,7 @@ module test_fsqrt();
 
                      #1;
 
-                     if (y[31:1] !== fybit[31:1]) begin
+                     if ( ~(y - fybit == 1 || fybit - y == 1 || y == fybit) || exception !== fexception ) begin
                         $display("x  = %b %b %b, %3d, %e",
 				 x[31], x[30:23], x[22:0], x[30:23], $bitstoshortreal(x));
                         $display("%e %b,%3d,%b %b, %d", fy,
