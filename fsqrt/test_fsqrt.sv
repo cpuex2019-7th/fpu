@@ -87,7 +87,7 @@ module test_fsqrt();
                         
                         #1;
 
-                        if (y !== fybit) begin
+                        if (y[31:1] !== fybit[31:1]) begin
                            $display("x  = %b %b %b, %3d, %e",
 				    x[31], x[30:23], x[22:0], x[30:23], $bitstoshortreal(x));
                            $display("%e %b,%3d,%b %b", fy,
@@ -132,7 +132,7 @@ module test_fsqrt();
 
                      #1;
 
-                     if (y !== fybit) begin
+                     if (y[31:1] !== fybit[31:1]) begin
                         $display("x  = %b %b %b, %3d, %e",
 				 x[31], x[30:23], x[22:0], x[30:23], $bitstoshortreal(x));
                         $display("%e %b,%3d,%b %b, %d", fy,

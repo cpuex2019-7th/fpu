@@ -130,7 +130,7 @@ module fmul
    
    // 偶数丸めを行う
    // 切り上げるのは myf[46]が1かつ(myf[45:0]が0より大きいとき または myf[47]が1のとき)
-   wire [24:0] myr = (myf[46:46] && (|myf[45:0] || myf[47:47])) ? {1'b0,myf[70:47]} + 25'b1 : {1'b0,myf[70:47]};
+   wire [24:0] myr = (myf[46:46]) ? {1'b0,myf[70:47]} + 25'b1 : {1'b0,myf[70:47]};
    // もう一度丸める
    wire [7:0] ey = (myr[24:24] == 1'b1) ? eyri : (myr[23:23] && ~|eyr) ? 8'b1 : (|myr[23:0] == 1'b0) ? 8'b0 : eyr;
    wire [22:0] my = (myr[24:24] == 1'b1) ? 23'b0 : (myr[23:23] && ~|eyr) ? {myr[21:0],1'b0} : myr[22:0];
@@ -157,13 +157,12 @@ module newton
    // x_out = x_in*(3-a*x_in**2)*(1/2)
 
    // x_in*(3-a*x_in**2) 上三桁が整数部
-   wire [102:0] p = ({3'b11,75'b0} - ({51'b0,a} * {51'b0,x_in} * {51'b0,x_in})) * {51'b0,x_in};
+   wire [106:0] p = ({27'b0,2'b11,78'b0} - ({79'b0,a,3'b0} * {79'b0,x_in} * {79'b0,x_in})) * {79'b0,x_in};
    // 切り上げるのは p[74]が1かつ(p[73:0]が0より大きい または p[75]が1)
    // 上二桁が整数部
-   assign x_out = (p[74:74] && (|p[73:0] || p[75:75])) ? {p[102:75]} + 27'b1 : {p[102:75]};
+   assign x_out = (p[78:78] && (|p[77:0] || p[79:79])) ? {p[106:79]} + 28'b1 : {p[106:79]};
 
 endmodule
-
 
 module fsqrt
    (  input wire [31:0]  x,
@@ -199,31 +198,41 @@ module fsqrt
                    (m[6:6] || m[5:5]) ? 8'd55 : 
                    (m[4:4] || m[3:3]) ? 8'd54 : 
                    (m[2:2] || m[1:1]) ? 8'd53 : 8'd52;
-                   
+
+   wire [27:0] x_out0 = {2'b1,26'b0};
    wire [27:0] x_out1;
    wire [27:0] x_out2;
    wire [27:0] x_out3;
    wire [27:0] x_out4;
    wire [27:0] x_out5;
    wire [27:0] x_out6;
-   newton u1(ma,{2'b1,26'b0},x_out1);
+   wire [27:0] x_out7;
+   wire [27:0] x_out8;
+   newton u1(ma,x_out0,x_out1);
    newton u2(ma,x_out1,x_out2);
    newton u3(ma,x_out2,x_out3);
    newton u4(ma,x_out3,x_out4);
    newton u5(ma,x_out4,x_out5);
    newton u6(ma,x_out5,x_out6);
+   newton u7(ma,x_out6,x_out7);
+   newton u8(ma,x_out7,x_out8);
 
-   wire [22:0] my = (x_out6[27:27]) ? x_out6[26:4] :
-                    (x_out6[26:26]) ? x_out6[25:3] :
-                    (x_out6[25:25]) ? x_out6[24:2] : x_out6[23:1];
+   wire [24:0] mye = (x_out8[27:27]) ? ((x_out8[3:3]) ? {1'b0,x_out8[27:4]}+25'b1 : {1'b0,x_out8[27:4]}) :
+                     (x_out8[26:26]) ? ((x_out8[2:2]) ? {1'b0,x_out8[26:3]}+25'b1 : {1'b0,x_out8[26:3]}) :
+                     (x_out8[25:25]) ? ((x_out8[1:1]) ? {1'b0,x_out8[25:2]}+25'b1 : {1'b0,x_out8[25:2]}) :
+                     (x_out8[0:0]) ? {1'b0,x_out8[24:1]}+25'b0 : {1'b0,x_out8[24:1]};
 
-   wire [7:0] ey = (x_out6[27:27]) ? 8'd255 - ea :
-                   (x_out6[26:26]) ? 8'd254 - ea :
-                   (x_out6[25:25]) ? 8'd253 - ea : 8'd252 - ea;
+   wire [22:0] my = (mye[24:24]) ? 23'b0 : mye[22:0];
+
+   wire [7:0] eye = (x_out8[27:27]) ? 8'd255 - ea :
+                    (x_out8[26:26]) ? 8'd254 - ea :
+                    (x_out8[25:25]) ? 8'd253 - ea : 8'd252 - ea;
+
+   wire [7:0] ey = (mye[24:24]) ? eye+8'b1 : eye;
 
    wire [31:0] y_mul;
    wire ovf;
-   fmul u7(x,{s,ey,my},y_mul,ovf);
+   fmul u9(x,{s,ey,my},y_mul,ovf);
 
    // nanかどうかの判定
    wire nzm = |m;
