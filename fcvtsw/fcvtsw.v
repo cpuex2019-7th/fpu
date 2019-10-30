@@ -4,6 +4,6 @@ module fcvtsw_top
       input wire        clk,
       input wire        rstn);
 
-   fcvtsw u1(x,y,exception);
+   fcvtsw u1(x,y);
 
 endmodule

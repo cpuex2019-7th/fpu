@@ -5,6 +5,6 @@ module fsqrt_top
       input wire        clk,
       input wire        rstn);
 
-   fsqrt u1(x1,x2,y,exception);
+   fsqrt u1(x,y,exception);
 
 endmodule
