@@ -166,8 +166,12 @@ endmodule
 
 module fsqrt
    (  input wire [31:0]  x,
-      output wire [31:0] y,
-      output wire        exception);
+      input reg         enable_in,
+      output reg [31:0] y,
+      output reg        enable_out,
+      output reg        exception,
+      input wire        clk,
+      input wire        rstn);
    // 定義
    wire s = x[31:31];
    wire [7:0] e = x[30:23];
@@ -202,19 +206,52 @@ module fsqrt
    wire [27:0] x_out0 = {2'b1,26'b0};
    wire [27:0] x_out1;
    wire [27:0] x_out2;
-   wire [27:0] x_out3;
-   wire [27:0] x_out4;
-   wire [27:0] x_out5;
-   wire [27:0] x_out6;
-   wire [27:0] x_out7;
-   wire [27:0] x_out8;
    newton u1(ma,x_out0,x_out1);
    newton u2(ma,x_out1,x_out2);
-   newton u3(ma,x_out2,x_out3);
-   newton u4(ma,x_out3,x_out4);
-   newton u5(ma,x_out4,x_out5);
-   newton u6(ma,x_out5,x_out6);
 
+   logic enable_in2;
+   logic s2;
+   logic [7:0] e2;
+   logic [22:0] m2;
+   logic [24:0] ma2;
+   logic [24:0] ea2;
+   logic [27:0] x_recv2;
+   always @(posedge clk) begin
+      enable_in2 <= enable_in;
+      s2 <= s;
+      e2 <= e;
+      m2 <= m;
+      ma2 <= ma;
+      ea2 <= ea;
+      x_recv2 <= x_out2;
+   end
+
+   wire [27:0] x_out3;
+   wire [27:0] x_out4;
+   newton u3(ma2,x_recv2,x_out3);
+   newton u4(ma2,x_out3,x_out4);
+
+   logic enable_in3;
+   logic s3;
+   logic [7:0] e3;
+   logic [22:0] m3;
+   logic [24:0] ma3;
+   logic [24:0] ea3;
+   logic [27:0] x_recv3;
+   always @(posedge clk) begin
+      enable_in3 <= enable_in2;
+      s3 <= s2;
+      e3 <= e2;
+      m3 <= m2;
+      ma3 <= ma2;
+      ea3 <= ea2;
+      x_recv3 <= x_out4;
+   end
+
+   wire [27:0] x_out5;
+   wire [27:0] x_out6;
+   newton u5(ma3,x_recv3,x_out5);
+   newton u6(ma3,x_out5,x_out6);
    wire [24:0] mye = (x_out6[27:27]) ? ((x_out6[3:3]) ? {1'b0,x_out6[27:4]}+25'b1 : {1'b0,x_out6[27:4]}) :
                      (x_out6[26:26]) ? ((x_out6[2:2]) ? {1'b0,x_out6[26:3]}+25'b1 : {1'b0,x_out6[26:3]}) :
                      (x_out6[25:25]) ? ((x_out6[1:1]) ? {1'b0,x_out6[25:2]}+25'b1 : {1'b0,x_out6[25:2]}) :
@@ -222,25 +259,27 @@ module fsqrt
 
    wire [22:0] my = (mye[24:24]) ? 23'b0 : mye[22:0];
 
-   wire [7:0] eye = (x_out6[27:27]) ? 8'd255 - ea :
-                    (x_out6[26:26]) ? 8'd254 - ea :
-                    (x_out6[25:25]) ? 8'd253 - ea : 8'd252 - ea;
+   wire [7:0] eye = (x_out6[27:27]) ? 8'd255 - ea3 :
+                    (x_out6[26:26]) ? 8'd254 - ea3 :
+                    (x_out6[25:25]) ? 8'd253 - ea3 : 8'd252 - ea3;
 
    wire [7:0] ey = (mye[24:24]) ? eye+8'b1 : eye;
 
    wire [31:0] y_mul;
    wire ovf;
-   fmul u9(x,{s,ey,my},y_mul,ovf);
+   wire [31:0] x3 = {s3,e3,m3};
+   fmul u9(x3,{s3,ey,my},y_mul,ovf);
 
    // nanかどうかの判定
-   wire nzm = |m;
-   assign y = (e == 8'd255 && nzm) ? {s,8'd255,1'b1,m[21:0]} : // 元がnanなら結果もnan
-              (s == 1'b0 && e == 8'd255 && ~nzm) ? {1'b0,8'd255,23'b0} : // 元が+infなら結果は+inf
-              (~|x) ? {1'b0,8'b0,23'b0} : // 元が+0なら結果は+0
-              (s == 1'b1 && ~|x[30:0]) ? {1'b1,8'b0,23'b0} : // 元が-0なら結果は-0
-              (s == 1'b1) ? {1'b1,8'd255,1'b1,22'b0} : // 負の数なら-nan
-              (x[31:0] == 32'b111111100111011101011) ? {32'b11111011111110011101101100000} : y_mul; // 何故かこれだけ2ずれちゃう 
-   assign exception = ((e == 8'd255 && nzm) || s == 1'b1 || ovf) ? 1'b1 : 1'b0;
+   wire nzm = |m3;
+   assign y = (e3 == 8'd255 && nzm) ? {s3,8'd255,1'b1,m3[21:0]} : // 元がnanなら結果もnan
+              (s3 == 1'b0 && e3 == 8'd255 && ~nzm) ? {1'b0,8'd255,23'b0} : // 元が+infなら結果は+inf
+              (~|x3) ? {1'b0,8'b0,23'b0} : // 元が+0なら結果は+0
+              (s3 == 1'b1 && ~|x3[30:0]) ? {1'b1,8'b0,23'b0} : // 元が-0なら結果は-0
+              (s3 == 1'b1) ? {1'b1,8'd255,1'b1,22'b0} : // 負の数なら-nan
+              (x3 == 32'b111111100111011101011) ? {32'b11111011111110011101101100000} : y_mul; // 何故かこれだけ2ずれちゃう 
+   assign exception = ((e3 == 8'd255 && nzm) || s3 == 1'b1 || ovf) ? 1'b1 : 1'b0;
+   assign enable_out = enable_in3;
 
 endmodule                                                                         
 `default_nettype wire
