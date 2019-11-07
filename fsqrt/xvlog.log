@@ -2,5 +2,5 @@ INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/nhsmt1123/Documents/cpu
 INFO: [VRFC 10-311] analyzing module test_fsqrt
 INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/nhsmt1123/Documents/cpu/fpu/fsqrt/fsqrt.sv" into library work
 INFO: [VRFC 10-311] analyzing module fmul
-INFO: [VRFC 10-311] analyzing module newton
+INFO: [VRFC 10-311] analyzing module newton_sqrt
 INFO: [VRFC 10-311] analyzing module fsqrt

@@ -149,7 +149,7 @@ module fmul
 
 endmodule                      
 
-module newton
+module newton_sqrt
    ( input wire [24:0] a,
      input wire [27:0] x_in,
      output wire [27:0] x_out);
@@ -399,8 +399,8 @@ module fsqrt
 
    wire [27:0] x_out1;
    wire [27:0] x_out2;
-   newton u1(ma,x_out0,x_out1);
-   newton u2(ma,x_out1,x_out2);
+   newton_sqrt u1(ma,x_out0,x_out1);
+   newton_sqrt u2(ma,x_out1,x_out2);
 
    wire [24:0] mye = (x_out2[27:27]) ? ((x_out2[3:3]) ? {1'b0,x_out2[27:4]}+25'b1 : {1'b0,x_out2[27:4]}) :
                      (x_out2[26:26]) ? ((x_out2[2:2]) ? {1'b0,x_out2[26:3]}+25'b1 : {1'b0,x_out2[26:3]}) :
