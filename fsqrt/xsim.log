@@ -1,0 +1,26 @@
+#-----------------------------------------------------------
+# xsim v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Thu Nov  7 20:39:54 2019
+# Process ID: 15759
+# Current directory: /home/nhsmt1123/Documents/cpu/fpu/fsqrt
+# Command line: xsim -mode tcl -source {xsim.dir/test_fsqrt.sim/xsim_script.tcl}
+# Log file: /home/nhsmt1123/Documents/cpu/fpu/fsqrt/xsim.log
+# Journal file: /home/nhsmt1123/Documents/cpu/fpu/fsqrt/xsim.jou
+#-----------------------------------------------------------
+source xsim.dir/test_fsqrt.sim/xsim_script.tcl
+# xsim {test_fsqrt.sim} -autoloadwcfg -runall
+Vivado Simulator 2018.3
+Time resolution is 100 ps
+run -all
+start of checking module fsqrt
+difference message format
+x  = [input 1(bit)], [exponent 1(decimal)], [x(float)]
+ref. : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)
+fsqrt : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)
+end of checking module fsqrt
+$finish called at time : 52898 us : File "/home/nhsmt1123/Documents/cpu/fpu/fsqrt/test_fsqrt.sv" Line 149
+run: Time (s): cpu = 00:00:00.18 ; elapsed = 00:03:33 . Memory (MB): peak = 1439.016 ; gain = 0.000 ; free physical = 729 ; free virtual = 4112
+exit
+INFO: [Common 17-206] Exiting xsim at Thu Nov  7 20:43:46 2019...

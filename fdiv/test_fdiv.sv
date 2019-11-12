@@ -32,8 +32,8 @@ module test_fdiv();
       $display("ref. : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
       $display("fdiv : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
 
-      for (i=0; i<256; i++) begin
-         for (j=0; j<256; j++) begin
+      for (i=1; i<256; i++) begin
+         for (j=1; j<256; j++) begin
             for (s1=0; s1<2; s1++) begin
                for (s2=0; s2<2; s2++) begin
                   for (it=0; it<10; it++) begin
@@ -92,7 +92,7 @@ module test_fdiv();
                         
                         #1;
 
-                        if (y !== fybit || ovf !== fovf) begin
+                        if ( ~(y - fybit <= 4 || fybit - y <= 4) || ovf !== fovf ) begin
                            $display("x1 = %b %b %b, %3d, %e",
 				    x1[31], x1[30:23], x1[22:0], x1[30:23], $bitstoshortreal(x1));
                            $display("x2 = %b %b %b, %3d, %e",
@@ -109,10 +109,10 @@ module test_fdiv();
          end
       end
 
-      for (i=0; i<255; i++) begin
+      for (i=1; i<255; i++) begin
          for (s1=0; s1<2; s1++) begin
             for (s2=0; s2<2; s2++) begin
-               for (j=0;j<23;j++) begin
+               for (j=1;j<23;j++) begin
                   repeat(10) begin
                      #1;
 
@@ -141,7 +141,7 @@ module test_fdiv();
 
                      #1;
 
-                     if (y !== fybit || ovf !== fovf) begin
+                     if ( ~(y - fybit <= 4 || fybit - y <= 4) || ovf !== fovf ) begin
                         $display("x1 = %b %b %b, %3d, %e",
 				 x1[31], x1[30:23], x1[22:0], x1[30:23], $bitstoshortreal(x1));
                         $display("x2 = %b %b %b, %3d, %e",
