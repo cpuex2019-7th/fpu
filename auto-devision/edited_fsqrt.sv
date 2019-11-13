@@ -7,9 +7,12 @@ module fsqrt
    // 定義
    wire s = x[31:31];
    wire [7:0] e = x[30:23];
-   assign [31:0] x1 = x;
+   logic [31:0] x1;
+   assign x1 = x;
+   logic s1;
    assign s1 = s;
-   assign [7:0] e1 = e;
+   logic [7:0] e1;
+   assign e1 = e;
    wire [22:0] m = x[22:0];
    // 非正規化数の処理
    // 指数が非零偶数なら右に1シフト，奇数ならそのまま，0なら最大偶数個左シフト
@@ -252,12 +255,18 @@ module fsqrt
    wire [106:0] p2 = {n2,78'b0} - {m2,2'b0};
    wire [27:0] x_out2 = (p2[78:78] && (|p2[77:0] || p2[79:79])) ? {p2[106:79]} + 28'b1 : {p2[106:79]};
 
-   assign [7:0] e2 = e;
-   assign [22:0] m3 = m;
-   assign [27:0] x_out21 = x_out2;
-   assign [7:0] ea1 = ea;
-   assign s2 = s;
-   assign [31:0] x2 = x;
+   logic [7:0] e2;
+   assign e2 = e1;
+   logic [22:0] m3;
+   assign m3 = m2;
+   logic [27:0] x_out21;
+   assign x_out21 = x_out2;
+   logic [7:0] ea1;
+   assign ea1 = ea;
+   logic s2;
+   assign s2 = s1;
+   logic [31:0] x2;
+   assign x2 = x1;
    
    wire [24:0] mye = (x_out2[27:27]) ? ((x_out2[3:3]) ? {1'b0,x_out2[27:4]}+25'b1 : {1'b0,x_out2[27:4]}) :
                      (x_out2[26:26]) ? ((x_out2[2:2]) ? {1'b0,x_out2[26:3]}+25'b1 : {1'b0,x_out2[26:3]}) :

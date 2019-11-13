@@ -3,9 +3,9 @@
 import re
 
 # 分割したい部分の行数
-div_point = [13,279,319,319]
-input_file = 'fdiv.sv'
-using_module = ["finv"]
+div_point = [10,252]
+input_file = 'fsqrt.sv'
+using_module = ["fmul"]
 
 defs = ["input","output","wire","assign"]
 # 入力を区切る
@@ -73,7 +73,8 @@ def assign(fout,v,l,allvars):
             idx += 1
         newvar = v[i] + str(idx)
         allvars += [newvar]
-        fout.write("   assign " + l[i] + newvar + " = " + v[i] + ";\n")
+        fout.write("   logic " + l[i] + newvar + ";\n")
+        fout.write("   assign " + newvar + " = " + v[i] + ";\n")
     return allvars
 
 def replace_args(line,oldvars,newvars):
@@ -161,3 +162,4 @@ fin.close()
 # 二回変更されるときの挙動
 # 2回連続で変更されるときの挙動
 # module を超えたときの挙動が正しいかどうか
+# スペルミス divide

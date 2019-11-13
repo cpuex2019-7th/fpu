@@ -10,10 +10,14 @@ module finv
    // wire [22:0] m = x[22:0];
    // 非正規化数はinfになるので無視 小数点以下23桁
    wire [23:0] ma = {1'b1,x[22:0]};
-   assign [7:0] e3 = e;
+   logic [7:0] e3;
+   assign e3 = e;
+   logic s3;
    assign s3 = s;
-   assign [23:0] ma1 = ma;
-   assign [31:0] x3 = x;
+   logic [23:0] ma1;
+   assign ma1 = ma;
+   logic [31:0] x3;
+   assign x3 = x;
 
    // 小数点以下26
    wire [25:0] x_in = (ma1[22:15] == 8'b00000000) ? {26'b11111111100000000011111111} :
@@ -280,11 +284,16 @@ module finv
    // 切り上げるのは p1[48]が1かつ(p1[47:0]が0より大きい または p1[49]が1)
    // 上二桁が整数部
    wire [25:0] x_out1 = (p1[48:48] && (|p1[47:0] || p1[49:49])) ? {p1[74:49]} + 26'b1 : {p1[74:49]};
-   assign [25:0] x_out11 = x_out1;
-   assign [7:0] e4 = e;
+   logic [25:0] x_out11;
+   assign x_out11 = x_out1;
+   logic [7:0] e4;
+   assign e4 = e;
+   logic s4;
    assign s4 = s;
-   assign [23:0] ma2 = ma;
-   assign [31:0] x4 = x;
+   logic [23:0] ma2;
+   assign ma2 = ma;
+   logic [31:0] x4;
+   assign x4 = x;
 
    // ニュートン法2回目
    wire [74:0] k2 = {51'b0,ma2} * {49'b0,x_out11} * {49'b0,x_out11};
@@ -325,8 +334,10 @@ module fdiv
    wire [31:0] x2i;
    wire exception;
    finv u1(x2,x2i,exception);
-   assign [31:0] y1 = y;
-   assign [31:0] x11 = x1;
+   logic [31:0] y1;
+   assign y1 = y;
+   logic [31:0] x11;
+   assign x11 = x1;
    fmul u2(x2i,x1,y,ovf);
 
 endmodule                                                                         
