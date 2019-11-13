@@ -258,7 +258,7 @@ module fsqrt
    logic [7:0] e2;
    assign e2 = e1;
    logic [22:0] m3;
-   assign m3 = m2;
+   assign m3 = m;
    logic [27:0] x_out21;
    assign x_out21 = x_out2;
    logic [7:0] ea1;
@@ -267,6 +267,18 @@ module fsqrt
    assign s2 = s1;
    logic [31:0] x2;
    assign x2 = x1;
+   logic [7:0] e3;
+   assign e3 = e2;
+   logic [22:0] m4;
+   assign m4 = m3;
+   logic [27:0] x_out22;
+   assign x_out22 = x_out21;
+   logic [7:0] ea2;
+   assign ea2 = ea1;
+   logic s3;
+   assign s3 = s2;
+   logic [31:0] x3;
+   assign x3 = x2;
    
    wire [24:0] mye = (x_out2[27:27]) ? ((x_out2[3:3]) ? {1'b0,x_out2[27:4]}+25'b1 : {1'b0,x_out2[27:4]}) :
                      (x_out2[26:26]) ? ((x_out2[2:2]) ? {1'b0,x_out2[26:3]}+25'b1 : {1'b0,x_out2[26:3]}) :
@@ -283,7 +295,7 @@ module fsqrt
 
    wire [31:0] y_mul;
    wire ovf;
-   fmul u3(x,{s,ey,my},y_mul,ovf);
+   fmul u3(x3,{s3,ey,my},y_mul,ovf);
 
    // nanかどうかの判定
    wire nzm = |m;

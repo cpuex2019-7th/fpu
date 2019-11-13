@@ -3,7 +3,7 @@
 import re
 
 # 分割したい部分の行数
-div_point = [10,252]
+div_point = [10,252,252]
 input_file = 'fsqrt.sv'
 using_module = ["fmul"]
 
@@ -21,6 +21,14 @@ def punctuate(ls):
             m[j+1] = ""
             return m
     return m
+
+# 使用している変数のリストを取得
+def get_vars(prog):
+    vars = []
+    for i in range(len(prog)):
+        if prog[i] in defs:
+            vars += [prog[i+1]]
+    return list(set(vars))
 
 # 保存する必要がある変数を求める．
 def vars_need_save(prog,t):
@@ -40,6 +48,18 @@ def vars_need_save(prog,t):
                 declared_vars = []
     return list(set(ans))
 
+# 元の変数名と新しい変数名の変換テーブルを作る
+def var_converter(v,vs):
+    conv = {}
+    for i in range(len(v)):
+        idx = 1
+        while (v[i] + str(idx)) in vs:
+            idx += 1
+        newvar = v[i] + str(idx)
+        vs += [newvar]
+        conv.update({v[i] : newvar})
+    return (conv,vs)
+
 # 保存する変数の長さを取得
 def get_length(vars,prog,t):
     ans = []
@@ -57,25 +77,16 @@ def get_length(vars,prog,t):
                     break
     return ans
 
-# 使用している変数のリストを取得
-def get_vars(prog):
-    vars = []
-    for i in range(len(prog)):
-        if prog[i] in defs:
-            vars += [prog[i+1]]
-    return list(set(vars))
-
 # 変数を保存する
-def assign(fout,v,l,allvars):
+def assign(fout,v,l,allvars,var_conv,past_conv):
     for i in range(len(v)):
-        idx = 1
-        while (v[i] + str(idx)) in allvars:
-            idx += 1
-        newvar = v[i] + str(idx)
-        allvars += [newvar]
+        newvar = var_conv[v[i]]
+        oldvar = v[i]
+        for j in range(len(past_conv)):
+            if v[i] in list(past_conv[j].keys()):
+                oldvar = past_conv[j][v[i]]
         fout.write("   logic " + l[i] + newvar + ";\n")
-        fout.write("   assign " + newvar + " = " + v[i] + ";\n")
-    return allvars
+        fout.write("   assign " + newvar + " = " + oldvar + ";\n")
 
 def replace_args(line,oldvars,newvars):
     for i in range(len(oldvars)):
@@ -126,12 +137,18 @@ for i in range(len(program)):
 program = [j for j in program if j != ""]
 assign_vars = []
 assign_len = []
+assign_conv = []
+allvars = get_vars(program)
 for i in range(len(div_point)):
-    v = vars_need_save(program,i)
+    if div_point[i] == div_point[i-1]:
+        v = assign_vars[-1]
+    else:
+        v = vars_need_save(program,i)
+    (conv,allvars) = var_converter(v,allvars)
     assign_vars += [v]
+    assign_conv += [conv]
     assign_len += [get_length(v,program2,i)]
 # print(program)
-allvars = get_vars(program)
 print(assign_vars)
 print(assign_len)
 # print(program2)
@@ -143,14 +160,22 @@ fout = open("edited_" + input_file,'w')
 l = 1
 p = -1
 m = -1
+m_save = 0
 while line:
     tm = get_module_num(module_line,l)
     if m != tm:
         m = -1
-    if l in div_point:
-        m = tm
-        p += 1
-        allvars = assign(fout,assign_vars[p],assign_len[p],allvars)
+    m = tm
+    for i in range(len(div_point)):
+        if div_point[i] == l:
+            p += 1
+            if m_save != tm:
+                assign_vars = assign_vars[p:]
+                assign_conv = assign_conv[p:]
+                assign_len = assign_len[p:]
+                m_save = tm
+                p = 0
+            assign(fout,assign_vars[p],assign_len[p],allvars,assign_conv[p],assign_conv[:p])
     if p >= 0 and m >=0:
         line = replace_args(line,assign_vars[p],allvars[-len(assign_vars[p]):])
     l += 1
