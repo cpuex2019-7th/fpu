@@ -268,35 +268,53 @@ module finv
                       (ma[22:15] == 8'b11111101) ? {26'b10000000101000001100100011} :
                       (ma[22:15] == 8'b11111110) ? {26'b10000000011000000100100000} : {26'b10000000001000000000100000};
 
+   logic [7:0] e3;
+   assign e3 = e;
+   logic s3;
+   assign s3 = s;
+   logic [23:0] ma1;
+   assign ma1 = ma;
+   logic [25:0] x_in1;
+   assign x_in1 = x_in;
+   logic [31:0] x3;
+   assign x3 = x;
    // ニュートン法1回目
-   // x_out1 = x_in*(2-a*x_in)
-   // x_in*(2-a*x_in) 小数点以下75桁
-   wire [74:0] k1 = {51'b0,ma} * {49'b0,x_in} * {49'b0,x_in};
-   wire [75:0] p1 = {x_in,50'b0} - {1'b0,k1};
+   // x_out1 = x_in1*(2-a*x_in1)
+   // x_in1*(2-a*x_in1) 小数点以下75桁
+   wire [74:0] k1 = {51'b0,ma1} * {49'b0,x_in1} * {49'b0,x_in1};
+   wire [75:0] p1 = {x_in1,50'b0} - {1'b0,k1};
    // 切り上げるのは p1[48]が1かつ(p1[47:0]が0より大きい または p1[49]が1)
    // 上二桁が整数部
    wire [25:0] x_out1 = (p1[48:48] && (|p1[47:0] || p1[49:49])) ? {p1[74:49]} + 26'b1 : {p1[74:49]};
 
    // ニュートン法2回目
-   wire [74:0] k2 = {51'b0,ma} * {49'b0,x_out1} * {49'b0,x_out1};
+   wire [74:0] k2 = {51'b0,ma1} * {49'b0,x_out1} * {49'b0,x_out1};
    wire [75:0] p2 = {x_out1,50'b0} - {1'b0,k2};
    wire [25:0] x_out2 = (p2[48:48] && (|p2[47:0] || p2[49:49])) ? {p2[74:49]} + 26'b1 : {p2[74:49]};
+   logic [31:0] x4;
+   assign x4 = x3;
+   logic s4;
+   assign s4 = s3;
+   logic [25:0] x_out21;
+   assign x_out21 = x_out2;
+   logic [7:0] e4;
+   assign e4 = e3;
 
-   wire [22:0] my = (e == 8'd254) ? ((x_out2[3:3]) ? {1'b0,x_out2[25:4]} + 23'b1 : {1'b0,x_out2[25:4]}) :
-                    (e == 8'd253) ? ((x_out2[2:2]) ? x_out2[25:3] + 23'b1 : x_out2[25:3]) :
-                    (x_out2[1:1]) ? x_out2[24:2] + 23'b1 : x_out2[24:2];
+   wire [22:0] my = (e4 == 8'd254) ? ((x_out21[3:3]) ? {1'b0,x_out21[25:4]} + 23'b1 : {1'b0,x_out21[25:4]}) :
+                    (e4 == 8'd253) ? ((x_out21[2:2]) ? x_out21[25:3] + 23'b1 : x_out21[25:3]) :
+                    (x_out21[1:1]) ? x_out21[24:2] + 23'b1 : x_out21[24:2];
 
-   wire [7:0] ey = (e == 8'd254) ? 0 : 8'd253 - e;
-   wire [7:0] ey2 = (e == 8'd253) ? 0 : ey + 8'b1;
+   wire [7:0] ey = (e4 == 8'd254) ? 0 : 8'd253 - e4;
+   wire [7:0] ey2 = (e4 == 8'd253) ? 0 : ey + 8'b1;
 
    // nanかどうかの判定
-   wire nzm = |x[22:0];
-   assign y = (e == 8'd255 && nzm) ? {s,8'd255,1'b1,x[21:0]} : // 元がnanなら結果もnan
-              (e == 8'd255 && ~nzm) ? {s,8'd0,23'b0} : // 元がinfなら結果は0
-              (~|x) ? {s,8'd255,23'b0} : // 元が+-0なら結果は+-inf
-              (~|x[22:0]) ? ((e == 8'd254) ? {s,8'b0,1'b1,22'b0} : (e == 8'd253) ? {s,8'b1,23'b0} : {s,ey2,23'b0}) : {s,ey,my};
+   wire nzm = |x4[22:0];
+   assign y = (e4 == 8'd255 && nzm) ? {s4,8'd255,1'b1,x4[21:0]} : // 元がnanなら結果もnan
+              (e4 == 8'd255 && ~nzm) ? {s4,8'd0,23'b0} : // 元がinfなら結果は0
+              (~|x4) ? {s4,8'd255,23'b0} : // 元が+-0なら結果は+-inf
+              (~|x4[22:0]) ? ((e4 == 8'd254) ? {s4,8'b0,1'b1,22'b0} : (e4 == 8'd253) ? {s4,8'b1,23'b0} : {s4,ey2,23'b0}) : {s4,ey,my};
 
-   assign exception = (e == 8'd255 && nzm) ? 1'b1 : 1'b0;
+   assign exception = (e4 == 8'd255 && nzm) ? 1'b1 : 1'b0;
 
 endmodule
 
@@ -316,7 +334,15 @@ module fdiv
    wire [31:0] x2i;
    wire exception;
    finv u1(x2,x2i,exception);
-   fmul u2(x2i,x1,y,ovf);
+   logic [31:0] x11;
+   assign x11 = x1;
+   logic [31:0] x2i1;
+   assign x2i1 = x2i;
+   logic [31:0] x12;
+   assign x12 = x11;
+   logic [31:0] x2i2;
+   assign x2i2 = x2i1;
+   fmul u2(x2i2,x12,y,ovf);
 
 endmodule                                                                         
 `default_nettype wire

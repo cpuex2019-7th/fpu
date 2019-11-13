@@ -1,9 +1,9 @@
 `timescale 1ns / 100ps
 `default_nettype none
 
-module test_fsub();
-   wire [31:0] x1,x2,y;
-   wire        ovf;
+module test_fsqrt();
+   wire [31:0] x,y;
+   wire        exception;
    logic [31:0] x1i,x2i;
    shortreal    fx1,fx2,fy;
    int          i,j,k,it,jt;
@@ -13,27 +13,25 @@ module test_fsub();
    int          s1,s2;
    logic [23:0] dy;
    bit [22:0] tm;
-   bit 	      fovf;
-   bit 	      checkovf;
+   bit 	      fexception;
+   bit 	      checkexception;
 
-   assign x1 = x1i;
-   assign x2 = x2i;
+   assign x = x1i;
    
-   fsub u1(x1,x2,y,ovf);
+   fsqrt u1(x,y,exception);
 
    initial begin
-      // $dumpfile("test_fsub.vcd");
+      // $dumpfile("test_fsqrt.vcd");
       // $dumpvars(0);
 
-      $display("start of checking module fsub");
+      $display("start of checking module fsqrt");
       $display("difference message format");
-      $display("x1 = [input 1(bit)], [exponent 1(decimal)]");
-      $display("x2 = [input 2(bit)], [exponent 2(decimal)]");
+      $display("x  = [input 1(bit)], [exponent 1(decimal)], [x(float)]");
       $display("ref. : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
-      $display("fsub : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
+      $display("fsqrt : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
 
-      for (i=0; i<255; i++) begin
-         for (j=0; j<255; j++) begin
+      for (i=0; i<256; i++) begin
+         for (j=0; j<256; j++) begin
             for (s1=0; s1<2; s1++) begin
                for (s2=0; s2<2; s2++) begin
                   for (it=0; it<10; it++) begin
@@ -75,31 +73,27 @@ module test_fsub();
                         endcase
                         
                         x1i = {s1[0],i[7:0],m1};
-                        x2i = {s2[0],j[7:0],m2};
 
                         fx1 = $bitstoshortreal(x1i);
-                        fx2 = $bitstoshortreal(x2i);
-                        fy = fx1 - fx2;
+                        fy = $sqrt(fx1);
                         fybit = $shortrealtobits(fy);
 
-			checkovf = i < 255 && j < 255;
-			if ( checkovf && fybit[30:23] == 255 ) begin
-			   fovf = 1;
+
+			if ( s1 == 1 || (i == 255 && m1 !== 0) ) begin
+			   fexception = 1;
 			end else begin
-			   fovf = 0;
+			   fexception = 0;
 			end
                         
                         #1;
 
-                        if (~(y - fybit <= 1 || fybit - y <= 1) || ovf !== fovf) begin
-                           $display("x1 = %b %b %b, %3d",
-				    x1[31], x1[30:23], x1[22:0], x1[30:23]);
-                           $display("x2 = %b %b %b, %3d",
-				    x2[31], x2[30:23], x2[22:0], x2[30:23]);
+                        if ( ~(y - fybit == 1 || fybit - y == 1 || y == fybit) || exception !== fexception ) begin
+                           $display("x  = %b %b %b, %3d, %e",
+				    x[31], x[30:23], x[22:0], x[30:23], $bitstoshortreal(x));
                            $display("%e %b,%3d,%b %b", fy,
-				    fybit[31], fybit[30:23], fybit[22:0], fovf);
+				    fybit[31], fybit[30:23], fybit[22:0], fexception);
                            $display("%e %b,%3d,%b %b\n", $bitstoshortreal(y),
-				    y[31], y[30:23], y[22:0], ovf);
+				    y[31], y[30:23], y[22:0], exception);
                         end
                      end
                   end
@@ -127,35 +121,31 @@ module test_fsub();
                      x2i = {s2[0],i[7:0],tm};
 
                      fx1 = $bitstoshortreal(x1i);
-                     fx2 = $bitstoshortreal(x2i);
-                     fy = fx1 - fx2;
+                     fy = $sqrt(fx1);
                      fybit = $shortrealtobits(fy);
                      
-		     checkovf = i < 255;
-		     if (checkovf && fybit[30:23] == 255) begin
-			fovf = 1;
+		     if ( s1 == 1 || (i == 255 && m1 !== 0) ) begin
+			fexception = 1;
 		     end else begin
-			fovf = 0;
+			fexception = 0;
 		     end
 
                      #1;
 
-                     if (~(y - fybit <= 1 || fybit - y <= 1) || ovf !== fovf) begin
-                        $display("x1 = %b %b %b, %3d",
-				 x1[31], x1[30:23], x1[22:0], x1[30:23]);
-                        $display("x2 = %b %b %b, %3d",
-				 x2[31], x2[30:23], x2[22:0], x2[30:23]);
-                        $display("%e %b,%3d,%b %b", fy,
-				 fybit[31], fybit[30:23], fybit[22:0], fovf);
+                     if ( ~(y - fybit == 1 || fybit - y == 1 || y == fybit) || exception !== fexception ) begin
+                        $display("x  = %b %b %b, %3d, %e",
+				 x[31], x[30:23], x[22:0], x[30:23], $bitstoshortreal(x));
+                        $display("%e %b,%3d,%b %b, %d", fy,
+				 fybit[31], fybit[30:23], fybit[22:0], fexception, fybit);
                         $display("%e %b,%3d,%b %b\n", $bitstoshortreal(y),
-				 y[31], y[30:23], y[22:0], ovf);
+				 y[31], y[30:23], y[22:0], exception);
                      end
                   end
                end
             end
          end
       end
-      $display("end of checking module fsub");
+      $display("end of checking module fsqrt");
       $finish;
    end
 endmodule

@@ -1,11 +1,11 @@
 `timescale 1ns / 100ps
 `default_nettype none
 
-module test_fsub();
+module test_mul();
    wire [31:0] x1,x2,y;
    wire        ovf;
    logic [31:0] x1i,x2i;
-   shortreal    fx1,fx2,fy;
+   int          fx1,fx2,fy;
    int          i,j,k,it,jt;
    bit [22:0]   m1,m2;
    bit [9:0]    dum1,dum2;
@@ -19,21 +19,21 @@ module test_fsub();
    assign x1 = x1i;
    assign x2 = x2i;
    
-   fsub u1(x1,x2,y,ovf);
+   mul u1(x1,x2,y,ovf);
 
    initial begin
-      // $dumpfile("test_fsub.vcd");
+      // $dumpfile("test_mul.vcd");
       // $dumpvars(0);
 
-      $display("start of checking module fsub");
+      $display("start of checking module mul");
       $display("difference message format");
-      $display("x1 = [input 1(bit)], [exponent 1(decimal)]");
-      $display("x2 = [input 2(bit)], [exponent 2(decimal)]");
-      $display("ref. : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
-      $display("fsub : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
+      $display("x1 = [input 1(bit)], [x1(int)]");
+      $display("x2 = [input 2(bit)], [x2(int)]");
+      $display("ref. : result(bit), y(int)");
+      $display("mul  : result(bit), y(int)");
 
-      for (i=0; i<255; i++) begin
-         for (j=0; j<255; j++) begin
+      for (i=0; i<256; i++) begin
+         for (j=0; j<256; j++) begin
             for (s1=0; s1<2; s1++) begin
                for (s2=0; s2<2; s2++) begin
                   for (it=0; it<10; it++) begin
@@ -76,30 +76,15 @@ module test_fsub();
                         
                         x1i = {s1[0],i[7:0],m1};
                         x2i = {s2[0],j[7:0],m2};
-
-                        fx1 = $bitstoshortreal(x1i);
-                        fx2 = $bitstoshortreal(x2i);
-                        fy = fx1 - fx2;
-                        fybit = $shortrealtobits(fy);
-
-			checkovf = i < 255 && j < 255;
-			if ( checkovf && fybit[30:23] == 255 ) begin
-			   fovf = 1;
-			end else begin
-			   fovf = 0;
-			end
+                        fy = x1i * x2i;
                         
                         #1;
 
-                        if (~(y - fybit <= 1 || fybit - y <= 1) || ovf !== fovf) begin
-                           $display("x1 = %b %b %b, %3d",
-				    x1[31], x1[30:23], x1[22:0], x1[30:23]);
-                           $display("x2 = %b %b %b, %3d",
-				    x2[31], x2[30:23], x2[22:0], x2[30:23]);
-                           $display("%e %b,%3d,%b %b", fy,
-				    fybit[31], fybit[30:23], fybit[22:0], fovf);
-                           $display("%e %b,%3d,%b %b\n", $bitstoshortreal(y),
-				    y[31], y[30:23], y[22:0], ovf);
+                        if (y !== fy) begin
+                           $display("x1 = %b, %d", x1, x1);
+                           $display("x2 = %b, %d", x2, x2);
+                           $display("fy = %b, %d", fy, fy);
+                           $display(" y = %b, %d",  y,  y);
                         end
                      end
                   end
@@ -126,36 +111,22 @@ module test_fsub();
                      end
                      x2i = {s2[0],i[7:0],tm};
 
-                     fx1 = $bitstoshortreal(x1i);
-                     fx2 = $bitstoshortreal(x2i);
-                     fy = fx1 - fx2;
-                     fybit = $shortrealtobits(fy);
-                     
-		     checkovf = i < 255;
-		     if (checkovf && fybit[30:23] == 255) begin
-			fovf = 1;
-		     end else begin
-			fovf = 0;
-		     end
+                     fy = x1i * x2i;
 
                      #1;
 
-                     if (~(y - fybit <= 1 || fybit - y <= 1) || ovf !== fovf) begin
-                        $display("x1 = %b %b %b, %3d",
-				 x1[31], x1[30:23], x1[22:0], x1[30:23]);
-                        $display("x2 = %b %b %b, %3d",
-				 x2[31], x2[30:23], x2[22:0], x2[30:23]);
-                        $display("%e %b,%3d,%b %b", fy,
-				 fybit[31], fybit[30:23], fybit[22:0], fovf);
-                        $display("%e %b,%3d,%b %b\n", $bitstoshortreal(y),
-				 y[31], y[30:23], y[22:0], ovf);
+                     if (y !== fy) begin
+                        $display("x1 = %b, %d", x1, x1);
+                        $display("x2 = %b, %d", x2, x2);
+                        $display("fy = %b, %d", fy, fy);
+                        $display(" y = %b, %d",  y,  y);
                      end
                   end
                end
             end
          end
       end
-      $display("end of checking module fsub");
+      $display("end of checking module mul");
       $finish;
    end
 endmodule
