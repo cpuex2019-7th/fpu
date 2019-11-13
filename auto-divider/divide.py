@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 import re
 
+# 分割したいファイル名
+input_file = 'fdiv.sv'
+# 分割死体ファイル内で呼び出している module 名
+using_module = ["finv","fmul"]
 # 分割したい部分の行数
-div_point = [10,252,252]
-input_file = 'fsqrt.sv'
-using_module = ["fmul"]
+div_point = [271,284,319,319,320,320]
 
 defs = ["input","output","wire","assign"]
 # 入力を区切る
@@ -30,7 +32,7 @@ def get_vars(prog):
             vars += [prog[i+1]]
     return list(set(vars))
 
-# 保存する必要がある変数を求める．
+# 保存する必要がある変数を求める．モジュールが変わるとリセット
 def vars_need_save(prog,t):
     declared_vars = []
     ans = []
@@ -39,6 +41,8 @@ def vars_need_save(prog,t):
         if count <= t:
             if prog[i] == "break":
                 count += 1
+            elif prog[i] == "endmodule":
+                declared_vars = []
             elif (prog[i] in defs) and prog[i] != "output":
                 declared_vars += [prog[i+1]]
         else:
@@ -88,10 +92,11 @@ def assign(fout,v,l,allvars,var_conv,past_conv):
         fout.write("   logic " + l[i] + newvar + ";\n")
         fout.write("   assign " + newvar + " = " + oldvar + ";\n")
 
+# 変数を新しいものに変更する
 def replace_args(line,oldvars,newvars):
     for i in range(len(oldvars)):
         reg = re.compile(r"(\(|~|\|| |,|\{|\+|-|\*)%s(\)| |,|\}|:|;|\+|-|\*|\[)"%oldvars[i])
-        line = re.sub(reg,r'\1'+newvars[i]+r'\2',line)
+        line = re.sub(reg,r'\1'+newvars[oldvars[i]]+r'\2',line)
     return line
 
 def get_module_num(ml,l):
@@ -135,6 +140,8 @@ for i in range(len(program)):
             else:
                 tmparg += [program[i]]
 program = [j for j in program if j != ""]
+
+# 保存する変数情報などを調べる
 assign_vars = []
 assign_len = []
 assign_conv = []
@@ -148,10 +155,7 @@ for i in range(len(div_point)):
     assign_vars += [v]
     assign_conv += [conv]
     assign_len += [get_length(v,program2,i)]
-# print(program)
-print(assign_vars)
-print(assign_len)
-# print(program2)
+print("vars needed to be stored: " + str(assign_vars))
 
 # ファイルを開いて変更しながら別のファイルに書き込んでいく
 fin = open(input_file)
@@ -177,14 +181,8 @@ while line:
                 p = 0
             assign(fout,assign_vars[p],assign_len[p],allvars,assign_conv[p],assign_conv[:p])
     if p >= 0 and m >=0:
-        line = replace_args(line,assign_vars[p],allvars[-len(assign_vars[p]):])
+        line = replace_args(line,assign_vars[p],assign_conv[p])
     l += 1
     fout.write(line)
     line = fin.readline()
 fin.close()
-
-
-# 二回変更されるときの挙動
-# 2回連続で変更されるときの挙動
-# module を超えたときの挙動が正しいかどうか
-# スペルミス divide
