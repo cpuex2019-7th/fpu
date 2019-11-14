@@ -15,6 +15,7 @@ module test_fmul();
    bit [22:0] tm;
    bit 	      fovf;
    bit 	      checkovf;
+   shortreal   abs;
 
    assign x1 = x1i;
    assign x2 = x2i;
@@ -32,8 +33,8 @@ module test_fmul();
       $display("ref. : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
       $display("fmul : result(float) sign(bit),exponent(decimal),mantissa(bit) overflow(bit)");
 
-      for (i=0; i<256; i++) begin
-         for (j=0; j<256; j++) begin
+      for (i=1; i<255; i++) begin
+         for (j=1; j<255; j++) begin
             for (s1=0; s1<2; s1++) begin
                for (s2=0; s2<2; s2++) begin
                   for (it=0; it<10; it++) begin
@@ -89,10 +90,20 @@ module test_fmul();
 			end else begin
 			   fovf = 0;
 			end
-                        
+
                         #1;
 
-                        if (y !== fybit || ovf !== fovf) begin
+         if ($bitstoshortreal(y) > $bitstoshortreal(fybit)) begin
+            abs = $bitstoshortreal(y) - $bitstoshortreal(fybit);
+         end else begin
+            abs = $bitstoshortreal(fybit) - $bitstoshortreal(y);
+         end
+                        
+
+                        if (fybit[30:23] !== 255 && ((abs >= fy * $bitstoshortreal({fybit[31:31],8'd125,23'b0}) && abs >= $bitstoshortreal({9'b1,23'b0})) || ovf !== fovf)) begin
+                           // $display("abs = %e %b", abs, $shortrealtobits(abs));
+                           // $display("abs = %e", fy * $bitstoshortreal({fybit[31:31],8'd125,23'b0}));
+                           // $display("abs = %e", $bitstoshortreal({9'd1,23'b0}));
                            $display("x1 = %b %b %b, %3d, %e",
 				    x1[31], x1[30:23], x1[22:0], x1[30:23], $bitstoshortreal(x1));
                            $display("x2 = %b %b %b, %3d, %e",
@@ -109,7 +120,7 @@ module test_fmul();
          end
       end
 
-      for (i=0; i<255; i++) begin
+      for (i=1; i<255; i++) begin
          for (s1=0; s1<2; s1++) begin
             for (s2=0; s2<2; s2++) begin
                for (j=0;j<23;j++) begin
@@ -140,14 +151,19 @@ module test_fmul();
 		     end
 
                      #1;
+         if ($bitstoshortreal(y) > $bitstoshortreal(fybit)) begin
+            abs = $bitstoshortreal(y) - $bitstoshortreal(fybit);
+         end else begin
+            abs = $bitstoshortreal(fybit) - $bitstoshortreal(y);
+         end
 
-                     if (y !== fybit || ovf !== fovf) begin
+                     if (fybit[30:23] !== 255 && ((abs >= fy * $bitstoshortreal({fybit[31:31],8'd125,23'b0}) && abs >= $bitstoshortreal({9'b1,23'b0})) || ovf !== fovf)) begin
                         $display("x1 = %b %b %b, %3d, %e",
 				 x1[31], x1[30:23], x1[22:0], x1[30:23], $bitstoshortreal(x1));
                         $display("x2 = %b %b %b, %3d, %e",
 				 x2[31], x2[30:23], x2[22:0], x2[30:23], $bitstoshortreal(x2));
-                        $display("%e %b,%3d,%b %b, %d", fy,
-				 fybit[31], fybit[30:23], fybit[22:0], fovf, fybit);
+                        $display("%e %b,%3d,%b %b", fy,
+				 fybit[31], fybit[30:23], fybit[22:0], fovf);
                         $display("%e %b,%3d,%b %b\n", $bitstoshortreal(y),
 				 y[31], y[30:23], y[22:0], ovf);
                      end
