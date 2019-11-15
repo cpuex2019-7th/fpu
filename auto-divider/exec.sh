@@ -5,11 +5,12 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-name=${1%.*}
-testname=${name#*_}
-echo $name
+tmpname=${1#*_}
+testname=${tmpname%.*}
+echo $testname
+name=${testname}_divide
 
 source ~/.bash_profile
-xvlog --sv test_${testname}.sv ${name}.sv ../fmul/fmul.sv
-xelab -debug typical test_${testname} -s test_${testname}.sim
-xsim --runall test_${testname}.sim
+xvlog --sv ../${name}/test_${name}.sv ../${name}/${name}.sv ../fmul/fmul.sv
+xelab -debug typical test_${tmpname} -s test_${tmpname}.sim
+xsim --runall test_${tmpname}.sim
