@@ -3,17 +3,23 @@
 import re
 
 # 分割したいファイル名
-input_file = 'fdiv'
+input_file = 'fsqrt'
 # 分割したいファイル内で呼び出している module 名
 if input_file == 'fsqrt':
     using_module = ["fmul"]
 elif input_file == 'fdiv':
     using_module = ["finv","fmul"]
 else:
-    using_module == []
+    using_module = []
 using_module += [input_file]
 # 分割したい部分の行数
-div_point = [275,277,283,285,316,316,316,316]
+if input_file == 'fsqrt':
+    div_point = [215,219,229,243]
+elif input_file == 'fdiv':
+    div_point = [275,277,283,316,316,316,316]
+else:
+    div_point = []
+
 if input_file == 'fdiv':
     ignore_vars = ["x2i"]
 else:
@@ -48,16 +54,18 @@ def get_vars(prog):
     return list(set(vars))
 
 # 保存する必要がある変数を求める．モジュールが変わるとリセット
-def vars_need_save(prog,t):
+def vars_need_save(prog,t,last_module):
     declared_vars = []
     ans = []
     count = 0
+    mod = 1
     for i in range(len(prog)):
         if count <= t:
             if prog[i] == "break":
                 count += 1
             elif prog[i] == "endmodule":
                 declared_vars = []
+                mod += 1
             elif (prog[i] in defs) and prog[i] != "output":
                 declared_vars += [prog[i+1]]
         else:
@@ -67,7 +75,11 @@ def vars_need_save(prog,t):
             elif prog[i] == "endmodule":
                 declared_vars = []
         # print(str(count) + "   " + str(declared_vars))
-    return list(set(ans))
+    if mod == last_module:
+        return list(set(ans)) + ["enable_in"]
+    else:
+        return list(set(ans))
+        
 
 # 元の変数名と新しい変数名の変換テーブルを作る
 def var_converter(v,vs):
@@ -177,13 +189,15 @@ while line:
     l += 1
     line = f.readline()
 f.close()
+total_line = l
 
 # 不要文字を除去していく
 reg = r"`default_nettype|none|\(|\)|={1,2}|\?|\|{1,2}|&{1,2}|~|\+|-|\*|}|{|\d+'b\d+|\d+'d\d+"
 program2 = [j for j in [re.sub(reg,'',i) for i in program] if j != ""]
 program = [j for j in [re.sub(r":|\[\d+:\d+\]",'',i) for i in program2] if j != ""]
-program = program[:-1]
+program = program[:-2]
 program = elim_ign(program,ignore_vars)
+program += ["assign","enable_out","enable_in","endmodule"]
 tmparg = []
 for i in range(len(program)):
     if program[i] in using_module + defs:
@@ -197,6 +211,11 @@ for i in range(len(program)):
 program = [j for j in program if j != ""]
 # print(program)
 
+last_module = 0
+for i in range(len(module_line)):
+    if module_line[i] != []:
+        last_module += 1
+
 # 保存する変数情報などを調べる
 assign_vars = []
 assign_len = []
@@ -207,7 +226,7 @@ for i in range(len(div_point)):
         v = assign_vars[-1]
         l = assign_len[-1]
     else:
-        v = vars_need_save(program,i)
+        v = vars_need_save(program,i,last_module)
         l = get_length(v,program2,i)
     (conv,allvars) = var_converter(v,allvars)
     assign_vars += [v]
@@ -271,6 +290,8 @@ while line:
                             line += ",clk," + buf[k]
                         else:
                             line += "," + buf[k]
+    if total_line - l < 4 and "endmodule" in line:
+        fout.write(replace_args("\tassign enable_out = enable_in;\n",assign_vars[p],assign_conv[p]))
     fout.write(line)
     line = fin.readline()
     l += 1
