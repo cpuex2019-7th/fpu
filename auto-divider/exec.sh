@@ -11,6 +11,6 @@ echo $testname
 name=${testname}_divide
 
 source ~/.bash_profile
-xvlog --sv ../${name}/test_${name}.sv ../${name}/${name}.sv ../fmul/fmul.sv
+xvlog --sv ../${name}/test_${name}.sv ../${name}/${name}.sv ../fmul/fmul.sv ../fadd_divide/fadd_divide.sv
 xelab -debug typical test_${tmpname} -s test_${tmpname}.sim
 xsim --runall test_${tmpname}.sim

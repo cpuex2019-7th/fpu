@@ -302,21 +302,22 @@ while line:
 fin.close()
 fout.close()
 
-# testファイルのNSTAGEを編集する
-fin = open("../" + input_file + "_divide/test_" + input_file + "_divide.sv")
-line = fin.readline()
-buf = []
-while line:
-    if "parameter NSTAGE =" in line:
-        buf += ["  #(parameter NSTAGE = " + str(module_clk[-1]) + ")\n"]
-    else:
-        buf += line
+if input_file != 'fsub':
+    # testファイルのNSTAGEを編集する
+    fin = open("../" + input_file + "_divide/test_" + input_file + "_divide.sv")
     line = fin.readline()
-fin.close()
-fout = open("../" + input_file + "_divide/test_" + input_file + "_divide.sv",'w')
-for i in range(len(buf)):
-    fout.write(buf[i])
-fout.close()
+    buf = []
+    while line:
+        if "parameter NSTAGE =" in line:
+            buf += ["  #(parameter NSTAGE = " + str(module_clk[-1]) + ")\n"]
+        else:
+            buf += line
+        line = fin.readline()
+    fin.close()
+    fout = open("../" + input_file + "_divide/test_" + input_file + "_divide.sv",'w')
+    for i in range(len(buf)):
+        fout.write(buf[i])
+    fout.close()
 
 # module またがったときの
 # 変数
