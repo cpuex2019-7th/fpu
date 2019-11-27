@@ -3,12 +3,14 @@
 import re
 
 # 分割したいファイル名
-input_file = 'fsqrt'
+input_file = 'fsub'
 # 分割したいファイル内で呼び出している module 名
 if input_file == 'fsqrt':
     using_module = ["fmul"]
 elif input_file == 'fdiv':
     using_module = ["finv","fmul"]
+elif input_file == 'fsub':
+    using_module = ["fadd"]
 else:
     using_module = []
 using_module += [input_file]
@@ -17,6 +19,8 @@ if input_file == 'fsqrt':
     div_point = [215,219,229,243]
 elif input_file == 'fdiv':
     div_point = [275,277,283,316,316,316,316]
+elif input_file == 'fadd':
+    div_point = [34,81]
 else:
     div_point = []
 
@@ -290,7 +294,7 @@ while line:
                             line += ",clk," + buf[k]
                         else:
                             line += "," + buf[k]
-    if total_line - l < 4 and "endmodule" in line:
+    if total_line - l < 4 and "endmodule" in line and p > 0:
         fout.write(replace_args("\tassign enable_out = enable_in;\n",assign_vars[p],assign_conv[p]))
     fout.write(line)
     line = fin.readline()
