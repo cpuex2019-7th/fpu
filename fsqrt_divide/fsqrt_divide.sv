@@ -2,6 +2,10 @@
 
 module fsqrt
    (  input wire [31:0]  x,
+		input wire         clk,
+		input wire         rstn,
+		input wire         enable_in,
+		output wire        enable_out,
       output wire [31:0] y,
       output wire        exception);
    // 定義
@@ -212,22 +216,82 @@ module fsqrt
    // x_in*(3-a*x_in**2) 上三桁が整数部
    // 上1桁が整数部 1程度
    wire [50:0] k1 = {26'b0,ma} * {23'b0,x_in};
+	logic [24:0] ma1;
+	logic [22:0] m3;
+	logic [7:0] ea1;
+	logic s1;
+	logic [26:0] x_in1;
+	logic [50:0] k11;
+	logic [31:0] x1;
+	logic [7:0] e1;
+	logic enable_in1;
+	always @(posedge clk) begin
+		ma1 <= ma;
+		m3 <= m;
+		ea1 <= ea;
+		s1 <= s;
+		x_in1 <= x_in;
+		k11 <= k1;
+		x1 <= x;
+		e1 <= e;
+		enable_in1 <= enable_in;
+	end
    // すべて小数部 0.0625 - 0.9999
-   wire [49:0] l1 = {25'b0,x_in[26:2]} * {25'b0,x_in[26:2]};
+   wire [49:0] l1 = {25'b0,x_in1[26:2]} * {25'b0,x_in1[26:2]};
    // 上1桁が整数部 1以下ぐらい
-   wire [49:0] m1 = {25'b0,k1[50:26]} * {25'b0,l1[49:25]};
+   wire [49:0] m1 = {25'b0,k11[50:26]} * {25'b0,l1[49:25]};
+	logic [24:0] ma2;
+	logic [22:0] m4;
+	logic [7:0] ea2;
+	logic [26:0] x_in2;
+	logic s2;
+	logic [49:0] m11;
+	logic [31:0] x2;
+	logic [7:0] e2;
+	logic enable_in2;
+	always @(posedge clk) begin
+		ma2 <= ma1;
+		m4 <= m3;
+		ea2 <= ea1;
+		x_in2 <= x_in1;
+		s2 <= s1;
+		m11 <= m1;
+		x2 <= x1;
+		e2 <= e1;
+		enable_in2 <= enable_in1;
+	end
    // 上2桁が整数部 0.75 - 2.9999
-   wire [29:0] n1 = {1'b0,x_in,1'b0} + {2'b0,x_in};
-   wire [30:0] p1 = {n1,1'b0} - {1'b0,m1[49:20]};
+   wire [29:0] n1 = {1'b0,x_in2,1'b0} + {2'b0,x_in2};
+   wire [30:0] p1 = {n1,1'b0} - {1'b0,m11[49:20]};
    // 切り上げるのは p1[74]が1かつ(p1[73:0]が0より大きい または p1[75]が1)
    // すべて小数部
    wire [26:0] x_out1 = (p1[1:1] && (p1[0:0] || p1[2:2])) ? {p1[28:2]} + 28'b1 : {p1[28:2]};
 
    // ニュートン法2回目
-   wire [50:0] k2 = {26'b0,ma} * {23'b0,x_out1};
+   wire [50:0] k2 = {26'b0,ma2} * {23'b0,x_out1};
    wire [49:0] l2 = {25'b0,x_out1[26:2]} * {25'b0,x_out1[26:2]};
-   wire [49:0] m2 = {25'b0,k2[50:26]} * {25'b0,l2[49:25]};
-   wire [29:0] n2 = {1'b0,x_out1,1'b0} + {2'b0,x_out1};
+	logic [7:0] e3;
+	logic [26:0] x_out11;
+	logic [22:0] m5;
+	logic [7:0] ea3;
+	logic [50:0] k21;
+	logic s3;
+	logic [49:0] l21;
+	logic [31:0] x3;
+	logic enable_in3;
+	always @(posedge clk) begin
+		e3 <= e2;
+		x_out11 <= x_out1;
+		m5 <= m4;
+		ea3 <= ea2;
+		k21 <= k2;
+		s3 <= s2;
+		l21 <= l2;
+		x3 <= x2;
+		enable_in3 <= enable_in2;
+	end
+   wire [49:0] m2 = {25'b0,k21[50:26]} * {25'b0,l21[49:25]};
+   wire [29:0] n2 = {1'b0,x_out11,1'b0} + {2'b0,x_out11};
    wire [30:0] p2 = {n2,1'b0} - {1'b0,m2[49:20]};
    wire [26:0] x_out2 = (p2[1:1] && (p2[0:0] || p2[2:2])) ? {p2[28:2]} + 28'b1 : {p2[28:2]};
 
@@ -237,23 +301,40 @@ module fsqrt
 
    wire [22:0] my = (mye[24:24]) ? 23'b0 : mye[22:0];
 
-   wire [7:0] eye = (x_out2[26:26]) ? 8'd254 - ea : 8'd253 - ea;
+   wire [7:0] eye = (x_out2[26:26]) ? 8'd254 - ea3 : 8'd253 - ea3;
 
    wire [7:0] ey = (mye[24:24]) ? eye+8'b1 : eye;
+	logic [7:0] e4;
+	logic [22:0] m6;
+	logic s4;
+	logic [7:0] ey1;
+	logic [31:0] x4;
+	logic [22:0] my1;
+	logic enable_in4;
+	always @(posedge clk) begin
+		e4 <= e3;
+		m6 <= m5;
+		s4 <= s3;
+		ey1 <= ey;
+		x4 <= x3;
+		my1 <= my;
+		enable_in4 <= enable_in3;
+	end
 
    wire [31:0] y_mul;
    wire ovf;
-   fmul u3(x,{s,ey,my},y_mul,ovf);
+   fmul u3(x4,{s4,ey1,my1},y_mul,ovf);
 
    // nanかどうかの判定
-   wire nzm = |m;
-   assign y = (e == 8'd255 && nzm) ? {s,8'd255,1'b1,m[21:0]} : // 元がnanなら結果もnan
-              (s == 1'b0 && e == 8'd255 && ~nzm) ? {1'b0,8'd255,23'b0} : // 元が+infなら結果は+inf
-              (~|x) ? {1'b0,8'b0,23'b0} : // 元が+0なら結果は+0
-              (s == 1'b1 && ~|x[30:0]) ? {1'b1,8'b0,23'b0} : // 元が-0なら結果は-0
-              (s == 1'b1) ? {1'b1,8'd255,1'b1,22'b0} : // 負の数なら-nan
-              (x[31:0] == 32'b111111100111011101011) ? {32'b11111011111110011101101100000} : y_mul; // 何故かこれだけ2ずれちゃう 
-   assign exception = ((e == 8'd255 && nzm) || s == 1'b1 || ovf) ? 1'b1 : 1'b0;
+   wire nzm = |m6;
+   assign y = (e4 == 8'd255 && nzm) ? {s4,8'd255,1'b1,m6[21:0]} : // 元がnanなら結果もnan
+              (s4 == 1'b0 && e4 == 8'd255 && ~nzm) ? {1'b0,8'd255,23'b0} : // 元が+infなら結果は+inf
+              (~|x4) ? {1'b0,8'b0,23'b0} : // 元が+0なら結果は+0
+              (s4 == 1'b1 && ~|x4[30:0]) ? {1'b1,8'b0,23'b0} : // 元が-0なら結果は-0
+              (s4 == 1'b1) ? {1'b1,8'd255,1'b1,22'b0} : // 負の数なら-nan
+              (x4[31:0] == 32'b111111100111011101011) ? {32'b11111011111110011101101100000} : y_mul; // 何故かこれだけ2ずれちゃう 
+   assign exception = ((e4 == 8'd255 && nzm) || s4 == 1'b1 || ovf) ? 1'b1 : 1'b0;
 
+	assign enable_out = enable_in4;
 endmodule                                                                         
 `default_nettype wire

@@ -1,6 +1,8 @@
 `timescale 1ns / 100ps
 `default_nettype none
 
+import "DPI-C" pure function int faddc(int,int);
+
 module test_fadd();
    wire [31:0] x1,x2,y;
    wire        ovf;
@@ -69,11 +71,15 @@ module test_fadd();
                         
                         x1i = {s1[0],i[7:0],m1};
                         x2i = {s2[0],j[7:0],m2};
+                        fybit = faddc(x1i,x2i);
                         
                         #1;
+                        if (y !== fybit || ovf !== fovf) begin
                            $display("x1 = %b %b %b", x1[31], x1[30:23], x1[22:0]);
                            $display("x2 = %b %b %b", x2[31], x2[30:23], x2[22:0]);
-                           $display("%b %b %b %b", y[31], y[30:23], y[22:0], ovf);
+                           $display("%b %b %b", fybit[31], fybit[30:23], fybit[22:0]);
+                           $display("%b %b %b", y[31], y[30:23], y[22:0]);
+                        end
 
                      end
                   end
