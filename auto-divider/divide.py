@@ -3,7 +3,7 @@
 import re
 
 # 分割したいファイル名
-input_file = 'fsub'
+input_file = 'fsqrt'
 # 分割したいファイル内で呼び出している module 名
 if input_file == 'fsqrt':
     using_module = ["fmul"]
