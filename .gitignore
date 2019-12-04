@@ -1,1 +1,7 @@
 result.txt
+/test
+*.sim.wdb
+*.pb
+*.jou
+*.log
+.dir
